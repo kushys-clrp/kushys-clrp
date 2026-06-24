@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kushy's - Order Sheet</title>
+    <link rel="stylesheet" href="assets/css/style.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="logo-area">
+        <span class="logo-text gradient-logo">KUSHY'S</span>
+      </div>
+
+      <nav class="nav-buttons">
+        <a href="register.html"><button>Register</button></a>
+        <a href="orders.html"><button>Orders</button></a>
+      </nav>
+
+      <button id="logoutBtn">Logout</button>
+    </header>
+
+    <main class="orders-dashboard">
+      <section class="orders-title-row">
+        <div>
+          <div class="orders-heading">
+            <i data-lucide="clipboard-list"></i>
+            <h1>ORDERS</h1>
+          </div>
+
+          <p class="orders-subtitle">Manage and track all customer orders</p>
+        </div>
+      </section>
+
+      <section class="orders-tools">
+        <input
+          type="text"
+          id="orderSearch"
+          placeholder="Search by customer, staff, or citizen ID..."
+        />
+
+        <div class="status-buttons">
+          <button class="status-filter active-status" data-status="all">
+            All Orders
+          </button>
+          <button class="status-filter" data-status="pending">Pending</button>
+          <button class="status-filter" data-status="completed">
+            Completed
+          </button>
+        </div>
+      </section>
+
+      <section class="orders-table-card">
+        <div class="orders-table-header">
+          <span>Customer</span>
+          <span>Staff Member</span>
+          <span>Items</span>
+          <span>Total</span>
+          <span>Citizen ID</span>
+          <span>Status</span>
+          <span>Date & Time</span>
+          <span>Actions</span>
+        </div>
+
+        <div id="ordersContainer"></div>
+        <div class="pagination-bar">
+          <button id="prevPageBtn">Previous</button>
+          <span id="pageInfo">Page 1 of 1</span>
+          <button id="nextPageBtn">Next</button>
+        </div>
+      </section>
+
+      <section class="orders-stats">
+        <div class="stat-card">
+          <span>Total Orders</span>
+          <strong id="totalOrdersStat">0</strong>
+        </div>
+
+        <div class="stat-card">
+          <span>Pending Orders</span>
+          <strong id="pendingOrdersStat">0</strong>
+        </div>
+
+        <div class="stat-card">
+          <span>Completed Orders</span>
+          <strong id="completedOrdersStat">0</strong>
+        </div>
+      </section>
+
+      <button id="clearCompletedBtn" class="danger-btn clear-orders-btn">
+        Clear Completed Orders
+      </button>
+    </main>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script type="module" src="assets/js/orders.js"></script>
+    <div id="popupContainer"></div>
+  </body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kushy's - Management</title>
+    <link rel="stylesheet" href="assets/css/style.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="logo-area">
+        <span class="logo-text">Kushy's</span>
+      </div>
+
+      <nav class="nav-buttons">
+        <a href="register.html"><button>Register</button></a>
+        <a href="orders.html"><button>Orders</button></a>
+      </nav>
+
+      <button id="logoutBtn">Logout</button>
+    </header>
+
+    <main class="dashboard-grid">
+      <section class="card">
+        <h2>Add Menu Item</h2>
+
+        <input type="text" id="itemName" placeholder="Item name" />
+        <input type="number" id="itemPrice" placeholder="Price" />
+
+        <select id="itemCategory">
+          <option value="">Select category</option>
+          <option value="Kushy's Joints">Kushy's Joints</option>
+          <option value="Bongs/Pipes">Bongs/Pipes</option>
+          <option value="Kushy's Edibles">Kushy's Edibles</option>
+          <option value="Crop Bags">Crop Bags</option>
+          <option value="Dabs & Carts">Dabs & Carts</option>
+          <option value="Kushy's Extras">Kushy's Extras</option>
+          <option value="Event Items">Event Items</option>
+        </select>
+
+        <button id="addItemBtn">Add Item</button>
+      </section>
+
+      <section class="card">
+        <h2>Edit Menu Item</h2>
+
+        <select id="menuItemSelect">
+          <option value="">Select item</option>
+        </select>
+
+        <input type="text" id="editItemName" placeholder="Item name" />
+        <input type="number" id="editItemPrice" placeholder="Price" />
+
+        <select id="editItemCategory">
+          <option value="">Select category</option>
+          <option value="Kushy's Joints">Kushy's Joints</option>
+          <option value="Bongs/Pipes">Bongs/Pipes</option>
+          <option value="Kushy's Edibles">Kushy's Edibles</option>
+          <option value="Crop Bags">Crop Bags</option>
+          <option value="Dabs & Carts">Dabs & Carts</option>
+          <option value="Kushy's Extras">Kushy's Extras</option>
+          <option value="Event Items">Event Items</option>
+        </select>
+
+        <div class="checkbox-actions">
+          <label class="checkbox-label">
+            <input type="checkbox" id="editAvailable" />
+            Available
+          </label>
+
+          <button id="saveMenuItemBtn">Save Item</button>
+
+          <button id="deleteMenuItemBtn" class="danger-btn">Delete Item</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Add Employee To Register</h2>
+
+        <input type="text" id="employeeName" placeholder="Employee name" />
+
+        <select id="employeeRole">
+          <option value="employee">Employee</option>
+          <option value="manager">Manager</option>
+          <option value="owner">Owner</option>
+        </select>
+
+        <button id="addEmployeeBtn">Add Employee to Register</button>
+      </section>
+
+      <section class="card">
+        <h2>Edit Employee</h2>
+
+        <select id="employeeSelectEdit">
+          <option value="">Select employee</option>
+        </select>
+
+        <input type="text" id="editEmployeeName" placeholder="Employee name" />
+
+        <select id="editEmployeeRole">
+          <option value="employee">Employee</option>
+          <option value="manager">Manager</option>
+          <option value="owner">Owner</option>
+        </select>
+
+        <div class="checkbox-actions">
+          <label class="checkbox-label">
+            <input type="checkbox" id="editEmployeeActive" />
+            Active
+          </label>
+
+          <button id="saveEmployeeBtn">Save Employee</button>
+
+          <button id="removeEmployeeBtn" class="danger-btn">
+            Remove Employee From Register
+          </button>
+        </div>
+      </section>
+
+      <section class="card orders-download-card">
+        <h2>Orders Spreadsheet</h2>
+        <p>Download all current orders as a spreadsheet file.</p>
+        <button id="downloadOrdersBtn">Download Orders</button>
+        <button id="deleteAllOrdersBtn" class="delete-orders-btn">
+          Delete All Orders
+        </button>
+      </section>
+    </main>
+
+    <script type="module" src="assets/js/dashboard.js"></script>
+    <div id="popupContainer"></div>
+  </body>
+</html>

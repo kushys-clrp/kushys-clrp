@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kushy's - Register</title>
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="logo-area">
+        <span class="logo-text gradient-logo">KUSHY'S</span>
+      </div>
+
+      <nav class="nav-buttons">
+        <a href="register.html"><button>Register</button></a>
+        <a href="orders.html"><button>Orders</button></a>
+      </nav>
+
+      <button id="logoutBtn">Logout</button>
+    </header>
+
+    <main class="pos-layout">
+      <section class="pos-panel main-pos-panel">
+        <div class="section-title">Create New Order</div>
+
+        <div class="order-input-grid">
+          <div>
+            <label>Staff Member</label>
+
+            <div class="custom-select" id="employeeCustomSelect">
+              <button
+                type="button"
+                class="custom-select-trigger"
+                id="employeeSelectTrigger"
+              >
+                Select staff member
+              </button>
+
+              <div class="custom-select-menu" id="employeeSelectMenu"></div>
+            </div>
+
+            <input type="hidden" id="employeeSelect" />
+          </div>
+
+          <div>
+            <label>Customer Name</label>
+            <input
+              type="text"
+              id="customerName"
+              placeholder="Enter customer name"
+            />
+          </div>
+
+          <div id="citizenIdWrapper" class="hidden-field">
+            <label>Citizen ID</label>
+            <input
+              type="text"
+              id="citizenId"
+              placeholder="Required for joint purchases"
+            />
+          </div>
+        </div>
+
+        <div class="menu-header">
+          <h2>Browse Menu</h2>
+          <input type="text" id="menuSearch" placeholder="Search products..." />
+        </div>
+
+        <div id="categoryButtons" class="category-buttons"></div>
+
+        <div class="menu-filter-wrap">
+          <button id="filterBtn" class="filter-btn" type="button">
+            <i data-lucide="sliders-horizontal"></i>
+            Filter
+            <i data-lucide="chevron-down"></i>
+          </button>
+
+          <div id="filterMenu" class="filter-menu">
+            <button type="button" data-sort="default">Default</button>
+            <button type="button" data-sort="price-low">
+              Price: Low to High
+            </button>
+            <button type="button" data-sort="price-high">
+              Price: High to Low
+            </button>
+            <button type="button" data-sort="name-az">Name: A to Z</button>
+            <button type="button" data-sort="name-za">Name: Z to A</button>
+          </div>
+        </div>
+
+        <div id="menuContainer" class="product-grid"></div>
+      </section>
+
+      <aside class="pos-panel order-panel">
+        <h2>Your Order</h2>
+
+        <div id="orderSummary"></div>
+
+        <div class="order-total-row">
+          <span>Total</span>
+          <strong>$<span id="orderTotal">0</span></strong>
+        </div>
+
+        <button id="submitOrderBtn" class="submit-order-btn">
+          <i data-lucide="receipt"></i>
+          Submit Order
+        </button>
+
+        <button id="clearOrderBtn" class="clear-order-btn">
+          <i data-lucide="trash-2"></i>
+          Clear Order
+        </button>
+      </aside>
+    </main>
+
+    <script type="module" src="assets/js/register.js"></script>
+    <div id="popupContainer"></div>
+  </body>
+</html>
