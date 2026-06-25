@@ -2105,3 +2105,34 @@ select:focus,
 .protected-page.auth-ready {
   visibility: visible;
 }
+
+.status-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.payment-badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.tab-payment-badge {
+  color: #ffd36c;
+  border: 1px solid rgba(255, 211, 108, 0.55);
+  background: rgba(255, 211, 108, 0.1);
+}
+
+.membership-payment-badge {
+  color: #d9a7ff;
+  border: 1px solid rgba(217, 167, 255, 0.55);
+  background: rgba(217, 167, 255, 0.1);
+}

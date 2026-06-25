@@ -193,6 +193,24 @@ function renderOrders() {
     const statusText = order.done ? "Completed" : "Pending";
     const statusIcon = order.done ? "check" : "clock-3";
 
+    let paymentBadge = "";
+
+if (order.paymentType === "tab") {
+  paymentBadge = `
+    <span class="payment-badge tab-payment-badge">
+      TAB: ${order.tabName || "Unnamed Tab"}
+    </span>
+  `;
+}
+
+if (order.paymentType === "membership") {
+  paymentBadge = `
+    <span class="payment-badge membership-payment-badge">
+      VIP REDEEMED
+    </span>
+  `;
+}
+
     orderRow.innerHTML = `
       <div class="table-user">
         <i data-lucide="user"></i>
@@ -221,10 +239,14 @@ function renderOrders() {
         ${order.citizenId ? `ID: ${order.citizenId}` : "—"}
       </div>
 
-      <div class="order-status ${statusClass}">
-        <i data-lucide="${statusIcon}"></i>
-        <span>${statusText}</span>
-      </div>
+        <div class="status-stack">
+  <div class="order-status ${statusClass}">
+    <i data-lucide="${statusIcon}"></i>
+    <span>${statusText}</span>
+  </div>
+
+  ${paymentBadge}
+</div>
 
       <div>
         ${dateText}<br>
