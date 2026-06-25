@@ -1719,3 +1719,23 @@ select:focus,
   background: linear-gradient(135deg, #8dffa5, #6cff8d);
   color: #07130b;
 }
+
+.menu-filter-wrap {
+  pointer-events: none;
+}
+
+.filter-btn,
+.filter-menu,
+.filter-menu button {
+  pointer-events: auto;
+}
+
+.category-buttons {
+  position: relative;
+  z-index: 5;
+}
+
+.menu-filter-wrap {
+  position: relative;
+  z-index: 4;
+}
