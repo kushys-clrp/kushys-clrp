@@ -6,16 +6,20 @@
     <title>Kushy's - Order Sheet</title>
     <link rel="stylesheet" href="assets/css/style.css" />
   </head>
-  <body>
+  <body class="protected-page">
     <header class="topbar">
       <div class="logo-area">
         <span class="logo-text gradient-logo">KUSHY'S</span>
       </div>
 
       <nav class="nav-buttons">
-        <a href="register.html"><button>Register</button></a>
-        <a href="orders.html"><button>Orders</button></a>
-      </nav>
+  <a href="register.html"><button>Register</button></a>
+  <a href="orders.html"><button>Orders</button></a>
+
+  <a href="dashboard.html" id="managementNavBtn" style="display: none;">
+    <button>Management</button>
+  </a>
+</nav>
 
       <button id="logoutBtn">Logout</button>
     </header>
@@ -86,10 +90,6 @@
           <strong id="completedOrdersStat">0</strong>
         </div>
       </section>
-
-      <button id="clearCompletedBtn" class="danger-btn clear-orders-btn">
-        Clear Completed Orders
-      </button>
     </main>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script type="module" src="assets/js/orders.js"></script>

@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="assets/css/style.css" />
     <script src="https://unpkg.com/lucide@latest"></script>
   </head>
-  <body>
+  <body class="protected-page">
     <header class="topbar">
       <div class="logo-area">
         <span class="logo-text gradient-logo">KUSHY'S</span>
@@ -16,6 +16,10 @@
       <nav class="nav-buttons">
         <a href="register.html"><button>Register</button></a>
         <a href="orders.html"><button>Orders</button></a>
+
+         <a href="dashboard.html" id="managementNavBtn" style="display: none;">
+          <button>Management</button>
+        </a>
       </nav>
 
       <button id="logoutBtn">Logout</button>
@@ -103,19 +107,91 @@
           <strong>$<span id="orderTotal">0</span></strong>
         </div>
 
-        <button id="submitOrderBtn" class="submit-order-btn">
-          <i data-lucide="receipt"></i>
-          Submit Order
-        </button>
+          <button id="submitOrderBtn" class="submit-order-btn">
+  <i data-lucide="receipt"></i>
+  Submit Order
+</button>
 
-        <button id="clearOrderBtn" class="clear-order-btn">
-          <i data-lucide="trash-2"></i>
-          Clear Order
-        </button>
+<div class="order-extra-actions">
+  <button id="toggleTabBtn" class="secondary-order-btn" type="button">
+    Toggle Tab
+  </button>
+
+  <button id="redeemMembershipBtn" class="secondary-order-btn" type="button">
+    Redeem Membership
+  </button>
+</div>
+
+<button id="clearOrderBtn" class="clear-order-btn">
+  <i data-lucide="trash-2"></i>
+  Clear Order
+</button>
       </aside>
     </main>
 
     <script type="module" src="assets/js/register.js"></script>
+    <div id="tabModal" class="kushy-modal hidden-field">
+  <div class="kushy-modal-box">
+    <h2>Tab System</h2>
+    <p>Select an existing tab or create a new one for this order.</p>
+
+    <label>Existing Tab</label>
+
+<div class="modal-custom-select">
+  <button type="button" class="modal-select-trigger" id="existingTabTrigger">
+    Select existing tab
+  </button>
+
+  <div class="modal-select-menu" id="existingTabMenu">
+    <button type="button" data-value="" data-name="">
+      Select existing tab
+    </button>
+  </div>
+
+  <input type="hidden" id="existingTabSelect" />
+</div>
+
+    <label>Create New Tab</label>
+    <input type="text" id="newTabName" placeholder="Person or group name" />
+
+    <div class="modal-actions">
+      <button id="setupTabBtn" type="button">Setup Tab</button>
+      <button id="cancelTabBtn" type="button" class="modal-cancel-btn">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="membershipModal" class="kushy-modal hidden-field">
+  <div class="kushy-modal-box">
+    <h2>Redeem Membership</h2>
+    <p>Select a Kushy's Royalty VIP member to redeem this order.</p>
+
+<label>VIP Member</label>
+
+<div class="modal-custom-select">
+  <button type="button" class="modal-select-trigger" id="membershipTrigger">
+    Select member
+  </button>
+
+  <div class="modal-select-menu" id="membershipMenu">
+    <button type="button" data-value="" data-name="">
+      Select member
+    </button>
+  </div>
+
+  <input type="hidden" id="membershipSelect" />
+</div>
+
+    <div class="modal-actions">
+      <button id="confirmMembershipBtn" type="button">Redeem</button>
+      <button id="cancelMembershipBtn" type="button" class="modal-cancel-btn">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
     <div id="popupContainer"></div>
   </body>
 </html>

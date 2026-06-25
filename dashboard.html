@@ -6,7 +6,7 @@
     <title>Kushy's - Management</title>
     <link rel="stylesheet" href="assets/css/style.css" />
   </head>
-  <body>
+  <body class="protected-page">
     <header class="topbar">
       <div class="logo-area">
         <span class="logo-text">Kushy's</span>
@@ -117,6 +117,36 @@
         </div>
       </section>
 
+        <section class="card management-orders-card full-width">
+  <h2>Manage Orders</h2>
+  <p>Edit or remove incorrect orders. Deleted orders will be hidden, not permanently removed.</p>
+
+  <div class="management-order-tools">
+    <input
+      type="text"
+      id="managementOrderSearch"
+      placeholder="Search customer, staff, citizen ID..."
+    />
+
+    <select id="managementOrderStatusFilter">
+      <option value="all">All Orders</option>
+      <option value="pending">Pending</option>
+      <option value="completed">Completed</option>
+    </select>
+  </div>
+
+  <div class="management-orders-header">
+    <span>Customer</span>
+    <span>Staff</span>
+    <span>Total</span>
+    <span>Status</span>
+    <span>Date</span>
+    <span>Actions</span>
+  </div>
+
+  <div id="managementOrdersContainer"></div>
+</section>
+
       <section class="card orders-download-card">
         <h2>Orders Spreadsheet</h2>
         <p>Download all current orders as a spreadsheet file.</p>
@@ -128,6 +158,39 @@
     </main>
 
     <script type="module" src="assets/js/dashboard.js"></script>
+    <div id="editOrderModal" class="kushy-modal hidden-field">
+  <div class="kushy-modal-box">
+    <h2>Edit Order</h2>
+    <p>Update incorrect order information.</p>
+
+    <input type="hidden" id="editOrderId" />
+
+    <label>Customer Name</label>
+    <input type="text" id="editOrderCustomer" />
+
+    <label>Staff Member</label>
+    <input type="text" id="editOrderEmployee" />
+
+    <label>Citizen ID</label>
+    <input type="text" id="editOrderCitizenId" />
+
+    <label>Total</label>
+    <input type="number" id="editOrderTotal" />
+
+    <label>Status</label>
+    <select id="editOrderStatus">
+      <option value="pending">Pending</option>
+      <option value="completed">Completed</option>
+    </select>
+
+    <div class="modal-actions">
+      <button id="saveEditedOrderBtn" type="button">Save Order</button>
+      <button id="cancelEditOrderBtn" type="button" class="modal-cancel-btn">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
     <div id="popupContainer"></div>
   </body>
 </html>

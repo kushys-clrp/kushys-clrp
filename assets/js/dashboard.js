@@ -12,7 +12,8 @@ import {
   getDocs,
   addDoc,
   updateDoc,
-  deleteDoc
+  deleteDoc,
+  serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
 const categories = [
@@ -27,6 +28,7 @@ const categories = [
 
 let menuItems = [];
 let employees = [];
+let managementOrders = [];
 
 const logoutBtn = document.getElementById("logoutBtn");
 
@@ -44,6 +46,26 @@ const deleteItemBtn = document.getElementById("deleteMenuItemBtn");
 const deleteEmployeeBtn = document.getElementById("removeEmployeeBtn");
 
 const deleteAllOrdersBtn = document.getElementById("deleteAllOrdersBtn");
+
+const managementOrdersContainer = document.getElementById(
+  "managementOrdersContainer"
+);
+
+const managementOrderSearch = document.getElementById("managementOrderSearch");
+const managementOrderStatusFilter = document.getElementById(
+  "managementOrderStatusFilter"
+);
+
+const editOrderModal = document.getElementById("editOrderModal");
+const editOrderId = document.getElementById("editOrderId");
+const editOrderCustomer = document.getElementById("editOrderCustomer");
+const editOrderEmployee = document.getElementById("editOrderEmployee");
+const editOrderCitizenId = document.getElementById("editOrderCitizenId");
+const editOrderTotal = document.getElementById("editOrderTotal");
+const editOrderStatus = document.getElementById("editOrderStatus");
+
+const saveEditedOrderBtn = document.getElementById("saveEditedOrderBtn");
+const cancelEditOrderBtn = document.getElementById("cancelEditOrderBtn");
 
 function showPopup(title, message, type = "success") {
   const popupContainer = document.getElementById("popupContainer");
@@ -100,8 +122,12 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
-  await loadMenuDropdown();
-  await loadEmployeeDropdown();
+  document.body.classList.add("auth-ready");
+
+await loadMenuDropdown();
+await loadEmployeeDropdown();
+await loadManagementOrders();
+  
 });
 
 // MENU MANAGEMENT
@@ -551,6 +577,230 @@ if (deleteAllOrdersBtn) {
           "All orders have been removed from the database."
         );
       });
+  });
+}
+
+// ORDER MANAGEMENT
+
+async function loadManagementOrders() {
+  if (!managementOrdersContainer) return;
+
+  const snapshot = await getDocs(collection(db, "orders"));
+
+  managementOrders = [];
+
+  snapshot.forEach((docSnap) => {
+    const order = {
+      id: docSnap.id,
+      ...docSnap.data()
+    };
+
+    if (!order.deleted) {
+      managementOrders.push(order);
+    }
+  });
+
+  managementOrders.sort((a, b) => {
+    const aTime = a.timestamp?.seconds || 0;
+    const bTime = b.timestamp?.seconds || 0;
+    return bTime - aTime;
+  });
+
+  renderManagementOrders();
+}
+
+function getFilteredManagementOrders() {
+  const searchTerm = managementOrderSearch?.value.toLowerCase().trim() || "";
+  const statusFilter = managementOrderStatusFilter?.value || "all";
+
+  return managementOrders.filter((order) => {
+    const status = order.done ? "completed" : "pending";
+
+    const matchesStatus =
+      statusFilter === "all" || statusFilter === status;
+
+    const matchesSearch =
+      order.customer?.toLowerCase().includes(searchTerm) ||
+      order.employee?.toLowerCase().includes(searchTerm) ||
+      order.citizenId?.toLowerCase().includes(searchTerm);
+
+    return matchesStatus && matchesSearch;
+  });
+}
+
+function renderManagementOrders() {
+  if (!managementOrdersContainer) return;
+
+  const filteredOrders = getFilteredManagementOrders();
+
+  managementOrdersContainer.innerHTML = "";
+
+  if (filteredOrders.length === 0) {
+    managementOrdersContainer.innerHTML = `
+      <div class="empty-orders-row">
+        No orders found.
+      </div>
+    `;
+    return;
+  }
+
+  filteredOrders.forEach((order) => {
+    const orderRow = document.createElement("div");
+    orderRow.classList.add("management-order-row");
+
+    const orderDate = order.timestamp
+      ? new Date(order.timestamp.seconds * 1000)
+      : null;
+
+    const dateText = orderDate
+      ? orderDate.toLocaleDateString()
+      : "Just now";
+
+    const paymentLabel =
+      order.paymentType && order.paymentType !== "standard"
+        ? ` (${order.paymentType})`
+        : "";
+
+    orderRow.innerHTML = `
+      <span>${order.customer || "Unknown"}${paymentLabel}</span>
+      <span>${order.employee || "Unknown"}</span>
+      <strong>$${Number(order.total || 0).toLocaleString()}</strong>
+      <span>${order.done ? "Completed" : "Pending"}</span>
+      <span>${dateText}</span>
+
+      <div class="management-order-actions">
+        <button type="button" class="edit-order-btn">
+          Edit
+        </button>
+
+        <button type="button" class="delete-order-btn">
+          Delete
+        </button>
+      </div>
+    `;
+
+    orderRow.querySelector(".edit-order-btn").addEventListener("click", () => {
+      openEditOrderModal(order);
+    });
+
+    orderRow.querySelector(".delete-order-btn").addEventListener("click", () => {
+      softDeleteOrder(order);
+    });
+
+    managementOrdersContainer.appendChild(orderRow);
+  });
+}
+
+function openEditOrderModal(order) {
+  if (!editOrderModal) return;
+
+  editOrderId.value = order.id;
+  editOrderCustomer.value = order.customer || "";
+  editOrderEmployee.value = order.employee || "";
+  editOrderCitizenId.value = order.citizenId || "";
+  editOrderTotal.value = order.total || 0;
+  editOrderStatus.value = order.done ? "completed" : "pending";
+
+  editOrderModal.classList.remove("hidden-field");
+}
+
+function closeEditOrderModal() {
+  if (!editOrderModal) return;
+
+  editOrderModal.classList.add("hidden-field");
+
+  editOrderId.value = "";
+  editOrderCustomer.value = "";
+  editOrderEmployee.value = "";
+  editOrderCitizenId.value = "";
+  editOrderTotal.value = "";
+  editOrderStatus.value = "pending";
+}
+
+async function softDeleteOrder(order) {
+  const confirmed = confirm(
+    `Delete ${order.customer || "this"} order from the orders page?`
+  );
+
+  if (!confirmed) return;
+
+  await updateDoc(doc(db, "orders", order.id), {
+    deleted: true,
+    deletedAt: serverTimestamp(),
+    deletedBy: auth.currentUser?.uid || null
+  });
+
+  showPopup(
+    "Order Deleted",
+    "The order has been hidden from the orders page."
+  );
+
+  await loadManagementOrders();
+}
+
+if (managementOrderSearch) {
+  managementOrderSearch.addEventListener("input", renderManagementOrders);
+}
+
+if (managementOrderStatusFilter) {
+  managementOrderStatusFilter.addEventListener("change", renderManagementOrders);
+}
+
+if (cancelEditOrderBtn) {
+  cancelEditOrderBtn.addEventListener("click", closeEditOrderModal);
+}
+
+if (editOrderModal) {
+  editOrderModal.addEventListener("click", (event) => {
+    if (event.target === editOrderModal) {
+      closeEditOrderModal();
+    }
+  });
+}
+
+if (saveEditedOrderBtn) {
+  saveEditedOrderBtn.addEventListener("click", async () => {
+    const orderId = editOrderId.value;
+
+    if (!orderId) {
+      showPopup("No Order Selected", "Please select an order first.", "error");
+      return;
+    }
+
+    const customer = editOrderCustomer.value.trim();
+    const employee = editOrderEmployee.value.trim();
+    const citizenId = editOrderCitizenId.value.trim();
+    const total = Number(editOrderTotal.value);
+    const done = editOrderStatus.value === "completed";
+
+    if (!customer || !employee || Number.isNaN(total)) {
+      showPopup(
+        "Missing Details",
+        "Please fill in the customer, staff member and total.",
+        "error"
+      );
+      return;
+    }
+
+    await updateDoc(doc(db, "orders", orderId), {
+      customer,
+      employee,
+      citizenId: citizenId || null,
+      total,
+      done,
+      edited: true,
+      editedAt: serverTimestamp(),
+      editedBy: auth.currentUser?.uid || null
+    });
+
+    closeEditOrderModal();
+
+    showPopup(
+      "Order Updated",
+      "The order has been updated successfully."
+    );
+
+    await loadManagementOrders();
   });
 }
 

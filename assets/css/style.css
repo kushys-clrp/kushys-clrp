@@ -1720,10 +1720,6 @@ select:focus,
   color: #07130b;
 }
 
-.menu-filter-wrap {
-  pointer-events: none;
-}
-
 .filter-btn,
 .filter-menu,
 .filter-menu button {
@@ -1738,4 +1734,374 @@ select:focus,
 .menu-filter-wrap {
   position: relative;
   z-index: 4;
+}
+
+.category-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 24px 0 12px;
+  position: relative;
+  z-index: 2;
+}
+
+.menu-filter-wrap {
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+  margin: 0 0 24px;
+  z-index: 10;
+  pointer-events: auto;
+}
+
+.filter-btn {
+  position: relative;
+  z-index: 20;
+  pointer-events: auto;
+}
+
+.filter-menu {
+  position: absolute;
+  top: 55px;
+  right: 0;
+  z-index: 999;
+  pointer-events: auto;
+}
+
+/* FINAL FIX: Create New Order field alignment */
+.order-input-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1.3fr 1fr;
+  gap: 26px !important;
+  align-items: end !important;
+}
+
+.order-input-grid > div {
+  width: 100% !important;
+  margin: 0 !important;
+}
+
+.order-input-grid label {
+  display: block;
+  margin: 0 0 10px !important;
+  line-height: 1.2;
+}
+
+.custom-select {
+  width: 100% !important;
+  margin: 0 !important;
+}
+
+.custom-select-trigger,
+#customerName,
+#citizenId {
+  width: 100% !important;
+  height: 60px !important;
+  margin: 0 !important;
+}
+
+.hidden-field {
+  display: none !important;
+}
+
+#citizenIdWrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 900px) {
+  .order-input-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+.order-extra-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.secondary-order-btn {
+  width: 100%;
+  background: transparent;
+  color: #6cff8d;
+  border: 1px solid rgba(108, 255, 141, 0.35);
+  border-radius: 12px;
+  padding: 12px;
+  font-weight: 800;
+}
+
+.secondary-order-btn:hover {
+  background: rgba(108, 255, 141, 0.12);
+}
+
+.kushy-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  z-index: 99998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.kushy-modal-box {
+  width: 100%;
+  max-width: 460px;
+  background: linear-gradient(145deg, #0b2214, #061109);
+  border: 1px solid rgba(108, 255, 141, 0.45);
+  border-radius: 22px;
+  padding: 24px;
+  color: #f4fff6;
+}
+
+.kushy-modal-box h2 {
+  margin-top: 0;
+  color: #6cff8d;
+}
+
+.kushy-modal-box p {
+  color: #b8c7bc;
+}
+
+.kushy-modal-box label {
+  display: block;
+  margin-top: 14px;
+  margin-bottom: 6px;
+  font-weight: 800;
+}
+
+.kushy-modal-box select,
+.kushy-modal-box input {
+  width: 100%;
+  margin: 0 0 12px;
+}
+
+.modal-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.modal-cancel-btn {
+  background: transparent;
+  color: #f4fff6;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+/* Better modal dropdown styling */
+.kushy-modal-box select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  background:
+    linear-gradient(45deg, transparent 50%, #6cff8d 50%),
+    linear-gradient(135deg, #6cff8d 50%, transparent 50%),
+    linear-gradient(135deg, #07130b, #102d19);
+
+  background-position:
+    calc(100% - 28px) calc(50% - 3px),
+    calc(100% - 20px) calc(50% - 3px),
+    0 0;
+
+  background-size:
+    8px 8px,
+    8px 8px,
+    100% 100%;
+
+  background-repeat: no-repeat;
+
+  color: #f4fff6;
+  border: 1px solid rgba(108, 255, 141, 0.75) !important;
+  border-radius: 18px;
+  padding: 16px 52px 16px 18px;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.kushy-modal-box select:hover,
+.kushy-modal-box select:focus {
+  border-color: #6cff8d !important;
+  box-shadow: 0 0 0 2px rgba(108, 255, 141, 0.18) !important;
+}
+
+.kushy-modal-box select option {
+  background: #0b2214;
+  color: #f4fff6;
+  font-weight: 700;
+}
+
+.kushy-modal-box select option:checked {
+  background: #6cff8d;
+  color: #07130b;
+}
+
+/* Custom modal dropdowns */
+.modal-custom-select {
+  position: relative;
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.modal-select-trigger {
+  width: 100%;
+  background: linear-gradient(135deg, #07130b, #102d19);
+  color: #f4fff6;
+  border: 1px solid rgba(108, 255, 141, 0.75);
+  border-radius: 18px;
+  padding: 16px 52px 16px 18px;
+  text-align: left;
+  font-size: 16px;
+  font-weight: 800;
+  position: relative;
+}
+
+.modal-select-trigger::after {
+  content: "▾";
+  position: absolute;
+  right: 20px;
+  color: #6cff8d;
+}
+
+.modal-select-trigger:hover {
+  border-color: #6cff8d;
+  background: linear-gradient(135deg, #0b2214, #14391f);
+}
+
+.modal-select-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 100%;
+  background: #0b2214;
+  border: 1px solid rgba(108, 255, 141, 0.75);
+  border-radius: 16px;
+  overflow: hidden;
+  z-index: 100000;
+  box-shadow: 0 0 24px rgba(108, 255, 141, 0.18);
+}
+
+.modal-select-menu.open {
+  display: block;
+}
+
+.modal-select-menu button {
+  width: 100%;
+  background: transparent;
+  color: #f4fff6;
+  border: none;
+  border-radius: 0;
+  padding: 14px 18px;
+  text-align: left;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.modal-select-menu button:hover {
+  background: rgba(108, 255, 141, 0.14);
+  color: #6cff8d;
+}
+
+.management-orders-card {
+  width: 100%;
+}
+
+.management-order-tools {
+  display: grid;
+  grid-template-columns: 1fr 240px;
+  gap: 14px;
+  margin: 18px 0;
+}
+
+.management-order-tools input,
+.management-order-tools select {
+  margin: 0;
+}
+
+.management-orders-header,
+.management-order-row {
+  display: grid;
+  grid-template-columns: 1.3fr 1.1fr 0.8fr 0.9fr 1fr 1.2fr;
+  gap: 12px;
+  align-items: center;
+  padding: 14px 0;
+}
+
+.management-orders-header {
+  color: #6cff8d;
+  font-weight: 800;
+  border-bottom: 1px solid rgba(108, 255, 141, 0.25);
+  text-transform: uppercase;
+  font-size: 13px;
+}
+
+.management-order-row {
+  border-bottom: 1px solid rgba(108, 255, 141, 0.12);
+}
+
+.management-order-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.edit-order-btn,
+.delete-order-btn {
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.edit-order-btn {
+  background: transparent;
+  color: #6cff8d;
+  border: 1px solid rgba(108, 255, 141, 0.35);
+}
+
+.delete-order-btn {
+  background: rgba(255, 107, 107, 0.12);
+  color: #ff7b7b;
+  border: 1px solid rgba(255, 107, 107, 0.35);
+}
+
+.edit-order-btn:hover {
+  background: rgba(108, 255, 141, 0.12);
+}
+
+.delete-order-btn:hover {
+  background: #ff7b7b;
+  color: #07130b;
+}
+
+@media (max-width: 900px) {
+  .management-order-tools {
+    grid-template-columns: 1fr;
+  }
+
+  .management-orders-header {
+    display: none;
+  }
+
+  .management-order-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    background: rgba(7, 19, 11, 0.45);
+    padding: 14px;
+    border-radius: 14px;
+    margin-bottom: 10px;
+  }
+}
+
+.protected-page {
+  visibility: hidden;
+}
+
+.protected-page.auth-ready {
+  visibility: visible;
 }
