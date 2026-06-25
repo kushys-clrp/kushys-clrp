@@ -73,14 +73,14 @@ function showPopup(title, message, type = "success") {
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
-    window.location.href = "login.html";
+    window.location.href = "index.html";
     return;
   }
 
   const employeeSnap = await getDoc(doc(db, "employees", user.uid));
 
   if (!employeeSnap.exists()) {
-    window.location.href = "login.html";
+    window.location.href = "index.html";
     return;
   }
 
@@ -556,5 +556,5 @@ if (deleteAllOrdersBtn) {
 
 logoutBtn.addEventListener("click", async () => {
   await signOut(auth);
-  window.location.href = "login.html";
+  window.location.href = "index.html";
 });

@@ -57,7 +57,7 @@ function showPopup(title, message, type = "success", duration = 3000) {
 
 onAuthStateChanged(auth, (user) => {
   if (!user) {
-    window.location.href = "login.html";
+    window.location.href = "index.html";
     return;
   }
 
@@ -317,5 +317,5 @@ clearCompletedBtn.addEventListener("click", async () => {
 
 logoutBtn.addEventListener("click", async () => {
   await signOut(auth);
-  window.location.href = "login.html";
+  window.location.href = "index.html";
 });
