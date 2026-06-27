@@ -132,6 +132,76 @@
   <div id="dashboardTabsList" class="dashboard-tabs-list"></div>
 </section>
 
+<section class="card">
+  <h2>VIP Memberships</h2>
+  <p>View and remove active Kushy's VIP memberships.</p>
+
+  <div id="dashboardMembershipsList" class="dashboard-tabs-list"></div>
+</section>
+
+<section class="card full-width">
+  <h2>Combo Builder</h2>
+  <p>Create combo deals by selecting menu items, quantities, and a final combo price.</p>
+
+  <div class="combo-builder-grid">
+    <div>
+      <label>Combo Name</label>
+      <input
+        type="text"
+        id="comboName"
+        placeholder="Example: 5 Joints + 2 Edibles"
+      />
+    </div>
+
+    <div>
+      <label>Combo Price</label>
+      <input
+        type="number"
+        id="comboPrice"
+        placeholder="Example: 2000"
+      />
+    </div>
+  </div>
+
+  <div class="combo-builder-grid">
+    <div>
+      <label>Select Menu Item</label>
+      <select id="comboItemSelect">
+        <option value="">Select item</option>
+      </select>
+    </div>
+
+    <div>
+      <label>Quantity</label>
+      <input
+        type="number"
+        id="comboItemQuantity"
+        value="1"
+        min="1"
+      />
+    </div>
+  </div>
+
+  <button id="addComboItemBtn" type="button">
+    Add Item To Combo
+  </button>
+
+  <div id="comboItemsPreview" class="combo-items-preview">
+    <p class="small-muted-text">No items added to this combo yet.</p>
+  </div>
+
+  <button id="createComboBtn" type="button">
+    Create Combo
+  </button>
+</section>
+
+<section class="card full-width">
+  <h2>Active Combos</h2>
+  <p>View or remove combo deals currently available on the register.</p>
+
+  <div id="dashboardCombosList" class="dashboard-tabs-list"></div>
+</section>
+
         <section class="card management-orders-card full-width">
   <h2>Manage Orders</h2>
   <p>Edit or remove incorrect orders. Deleted orders will be hidden, not permanently removed.</p>

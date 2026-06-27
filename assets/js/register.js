@@ -13,7 +13,8 @@ import {
   where,
   serverTimestamp,
   doc,
-  getDoc
+  getDoc,
+  Timestamp
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
 const employeeSelect = document.getElementById("employeeSelect");
@@ -63,6 +64,7 @@ const cancelMembershipJointBtn = document.getElementById("cancelMembershipJointB
 
 let currentOrder = [];
 let menuItems = [];
+let comboItems = [];
 let selectedCategory = "All";
 let selectedSort = "default";
 let selectedTab = null;
@@ -189,15 +191,45 @@ async function loadMenu() {
     });
   });
 
-  buildCategoryButtons();
-  renderMenu();
+  await loadCombos();
+buildCategoryButtons();
+renderMenu();
+}
+
+async function loadCombos() {
+  comboItems = [];
+
+  const snapshot = await getDocs(collection(db, "combos"));
+
+  snapshot.forEach((docSnap) => {
+    const combo = {
+      id: docSnap.id,
+      ...docSnap.data()
+    };
+
+    if (combo.active) {
+      comboItems.push({
+        id: `combo-${combo.id}`,
+        comboId: combo.id,
+        name: combo.name,
+        price: Number(combo.price),
+        category: "Combos",
+        isCombo: true,
+        comboItems: combo.items || []
+      });
+    }
+  });
+
+  comboItems.sort((a, b) => a.name.localeCompare(b.name));
 }
 
 function buildCategoryButtons() {
-  const categories = [
-    "All",
-    ...new Set(menuItems.map((item) => item.category))
-  ];
+const allRegisterItems = [...menuItems, ...comboItems];
+
+const categories = [
+  "All",
+  ...new Set(allRegisterItems.map((item) => item.category))
+];
 
   categoryButtons.innerHTML = "";
 
@@ -227,7 +259,9 @@ function renderMenu() {
 
   const searchTerm = menuSearch.value.toLowerCase();
 
-  const filteredItems = menuItems.filter((item) => {
+  const allRegisterItems = [...menuItems, ...comboItems];
+
+const filteredItems = allRegisterItems.filter((item) => {
     const matchesCategory =
       selectedCategory === "All" || item.category === selectedCategory;
 
@@ -266,8 +300,17 @@ function renderMenu() {
     productCard.innerHTML = `
       <div>
         <p class="product-category">${item.category}</p>
-        <h3>${item.name}</h3>
-        <strong>$${item.price.toLocaleString()}</strong>
+          <h3>${item.name}</h3>
+
+${item.isCombo ? `
+  <p class="combo-card-items">
+    ${(item.comboItems || [])
+      .map((comboItem) => `${comboItem.quantity}x ${comboItem.name}`)
+      .join("<br>")}
+  </p>
+` : ""}
+
+<strong>$${item.price.toLocaleString()}</strong>
       </div>
 
       <div class="product-add-row">
@@ -319,16 +362,19 @@ function addToOrder(item, quantity = 1) {
 
   if (isJoint) {
     const currentJointQuantity = getJointQuantityFromOrder();
-    const newJointQuantity = currentJointQuantity + quantity;
+const itemJointQuantity = getJointQuantityFromItem({
+  ...item,
+  quantity
+});
 
-    if (newJointQuantity > 5) {
-      showPopup(
-        "Joint Limit Reached",
-        "Employees can only sell 5 joints per order.",
-        "error"
-      );
-      return;
-    }
+if (itemJointQuantity > 0 && currentJointQuantity + itemJointQuantity > 5) {
+  showPopup(
+    "Joint Limit Reached",
+    "Employees can only sell 5 joints per order.",
+    "error"
+  );
+  return;
+}
   }
 
   const existingItem = currentOrder.find(
@@ -339,30 +385,48 @@ function addToOrder(item, quantity = 1) {
     existingItem.quantity += quantity;
   } else {
     currentOrder.push({
-      id: item.id,
-      name: item.name,
-      price: item.price,
-      category: item.category,
-      quantity
-    });
+  id: item.id,
+  name: item.name,
+  price: item.price,
+  category: item.category,
+  quantity,
+  isCombo: item.isCombo || false,
+  comboItems: item.comboItems || []
+});
   }
 
   renderOrder();
 }
 
+function getJointQuantityFromItem(item) {
+  if (item.category?.toLowerCase().includes("joint")) {
+    return item.quantity || 0;
+  }
+
+  if (item.isCombo) {
+    const comboJointQuantity = (item.comboItems || []).reduce((total, comboItem) => {
+      if (comboItem.category?.toLowerCase().includes("joint")) {
+        return total + Number(comboItem.quantity || 0);
+      }
+
+      return total;
+    }, 0);
+
+    return comboJointQuantity * (item.quantity || 1);
+  }
+
+  return 0;
+}
+
 function orderIncludesJoints() {
-  return currentOrder.some((item) =>
-    item.category.toLowerCase().includes("joint")
-  );
+  return currentOrder.some((item) => {
+    return getJointQuantityFromItem(item) > 0;
+  });
 }
 
 function getJointQuantityFromOrder() {
   return currentOrder.reduce((total, item) => {
-    if (item.category.toLowerCase().includes("joint")) {
-      return total + item.quantity;
-    }
-
-    return total;
+    return total + getJointQuantityFromItem(item);
   }, 0);
 }
 
@@ -668,14 +732,23 @@ async function loadMemberships() {
   );
 
   const snapshot = await getDocs(q);
-  const memberships = [];
+const memberships = [];
+const now = new Date();
 
-  snapshot.forEach((docSnap) => {
-    memberships.push({
-      id: docSnap.id,
-      ...docSnap.data()
-    });
-  });
+snapshot.forEach((docSnap) => {
+  const membership = {
+    id: docSnap.id,
+    ...docSnap.data()
+  };
+
+  const expiresAt = membership.expiresAt?.toDate
+    ? membership.expiresAt.toDate()
+    : null;
+
+  if (!expiresAt || expiresAt > now) {
+    memberships.push(membership);
+  }
+});
 
   memberships.sort((a, b) => a.name.localeCompare(b.name));
 
@@ -983,11 +1056,15 @@ if (selectedMembership) {
 await addDoc(collection(db, "orders"), orderData);
 
 if (orderIncludesMembershipPlan() && !selectedMembership) {
+  const expiresAtDate = new Date();
+  expiresAtDate.setMonth(expiresAtDate.getMonth() + 1);
+
   await addDoc(collection(db, "memberships"), {
     name: customerName,
     plan: "Kushy's Royalty VIP Plan",
     active: true,
     createdAt: serverTimestamp(),
+    expiresAt: Timestamp.fromDate(expiresAtDate),
     createdBy: auth.currentUser?.uid || null
   });
 

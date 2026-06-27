@@ -2219,3 +2219,51 @@ select:focus,
 .cancel-delete-btn:hover {
   background: rgba(255, 255, 255, 0.08);
 }
+
+.combo-builder-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.combo-items-preview {
+  margin: 18px 0;
+  display: grid;
+  gap: 10px;
+}
+
+.combo-preview-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  background: rgba(7, 19, 11, 0.55);
+  border: 1px solid rgba(108, 255, 141, 0.18);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+
+.combo-preview-row strong {
+  color: #6cff8d;
+}
+
+.remove-combo-preview-btn {
+  background: rgba(255, 107, 107, 0.12);
+  color: #ff7b7b;
+  border: 1px solid rgba(255, 107, 107, 0.35);
+  border-radius: 8px;
+  padding: 7px 10px;
+}
+
+@media (max-width: 800px) {
+  .combo-builder-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.combo-card-items {
+  color: #b8c7bc;
+  font-size: 13px;
+  line-height: 1.35;
+  margin: 8px 0;
+}
