@@ -29,6 +29,7 @@ const categories = [
 let menuItems = [];
 let employees = [];
 let managementOrders = [];
+let dashboardTabs = [];
 
 const logoutBtn = document.getElementById("logoutBtn");
 
@@ -63,6 +64,10 @@ const editOrderEmployee = document.getElementById("editOrderEmployee");
 const editOrderCitizenId = document.getElementById("editOrderCitizenId");
 const editOrderTotal = document.getElementById("editOrderTotal");
 const editOrderStatus = document.getElementById("editOrderStatus");
+
+const dashboardTabName = document.getElementById("dashboardTabName");
+const createDashboardTabBtn = document.getElementById("createDashboardTabBtn");
+const dashboardTabsList = document.getElementById("dashboardTabsList");
 
 const saveEditedOrderBtn = document.getElementById("saveEditedOrderBtn");
 const cancelEditOrderBtn = document.getElementById("cancelEditOrderBtn");
@@ -127,6 +132,7 @@ onAuthStateChanged(auth, async (user) => {
 await loadMenuDropdown();
 await loadEmployeeDropdown();
 await loadManagementOrders();
+await loadDashboardTabs();
   
 });
 
@@ -801,6 +807,154 @@ if (saveEditedOrderBtn) {
     );
 
     await loadManagementOrders();
+  });
+}
+
+// TAB MANAGEMENT
+
+async function loadDashboardTabs() {
+  if (!dashboardTabsList) return;
+
+  dashboardTabs = [];
+
+  const snapshot = await getDocs(collection(db, "tabs"));
+
+  snapshot.forEach((docSnap) => {
+    const tab = {
+      id: docSnap.id,
+      ...docSnap.data()
+    };
+
+    if (tab.active) {
+      dashboardTabs.push(tab);
+    }
+  });
+
+  dashboardTabs.sort((a, b) => a.name.localeCompare(b.name));
+
+  renderDashboardTabs();
+}
+
+function renderDashboardTabs() {
+  if (!dashboardTabsList) return;
+
+  dashboardTabsList.innerHTML = "";
+
+  if (dashboardTabs.length === 0) {
+    dashboardTabsList.innerHTML = `
+      <p class="small-muted-text">No active tabs yet.</p>
+    `;
+    return;
+  }
+
+  dashboardTabs.forEach((tab) => {
+    const tabRow = document.createElement("div");
+    tabRow.classList.add("dashboard-tab-row");
+
+    tabRow.innerHTML = `
+      <span>${tab.name}</span>
+
+      <div class="dashboard-tab-actions">
+        <span class="tab-active-label">Active</span>
+
+        <button type="button" class="delete-tab-btn">
+          Delete
+        </button>
+      </div>
+    `;
+
+    tabRow.querySelector(".delete-tab-btn").addEventListener("click", () => {
+      deleteDashboardTab(tab);
+    });
+
+    dashboardTabsList.appendChild(tabRow);
+  });
+}
+
+function deleteDashboardTab(tab) {
+  const popupContainer = document.getElementById("popupContainer");
+
+  if (!popupContainer) return;
+
+  const confirmPopup = document.createElement("div");
+  confirmPopup.classList.add("custom-popup", "popup-error");
+
+  confirmPopup.innerHTML = `
+    <div class="popup-title">
+      Delete Tab?
+    </div>
+
+    <div class="popup-message">
+      Remove "${tab.name}" from the active tab list?
+    </div>
+
+    <div class="popup-confirm-actions">
+      <button type="button" class="confirm-delete-btn">
+        Delete
+      </button>
+
+      <button type="button" class="cancel-delete-btn">
+        Cancel
+      </button>
+    </div>
+  `;
+
+  popupContainer.appendChild(confirmPopup);
+
+  confirmPopup
+    .querySelector(".cancel-delete-btn")
+    .addEventListener("click", () => {
+      confirmPopup.remove();
+    });
+
+  confirmPopup
+    .querySelector(".confirm-delete-btn")
+    .addEventListener("click", async () => {
+      await updateDoc(doc(db, "tabs", tab.id), {
+        active: false,
+        deletedAt: serverTimestamp(),
+        deletedBy: auth.currentUser?.uid || null
+      });
+
+      confirmPopup.remove();
+
+      showPopup(
+        "Tab Deleted",
+        `${tab.name} has been removed from the active tab list.`
+      );
+
+      await loadDashboardTabs();
+    });
+}
+
+if (createDashboardTabBtn) {
+  createDashboardTabBtn.addEventListener("click", async () => {
+    const name = dashboardTabName.value.trim();
+
+    if (!name) {
+      showPopup(
+        "Missing Tab Name",
+        "Please enter a person or group name.",
+        "error"
+      );
+      return;
+    }
+
+    await addDoc(collection(db, "tabs"), {
+      name,
+      active: true,
+      createdAt: serverTimestamp(),
+      createdBy: auth.currentUser?.uid || null
+    });
+
+    dashboardTabName.value = "";
+
+    showPopup(
+      "Tab Created",
+      `${name} has been added to the tab list.`
+    );
+
+    await loadDashboardTabs();
   });
 }
 

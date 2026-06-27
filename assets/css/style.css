@@ -2099,11 +2099,11 @@ select:focus,
 }
 
 .protected-page {
-  visibility: hidden;
+  visibility: visible !important;
 }
 
 .protected-page.auth-ready {
-  visibility: visible;
+  visibility: visible !important;
 }
 
 .status-stack {
@@ -2135,4 +2135,87 @@ select:focus,
   color: #d9a7ff;
   border: 1px solid rgba(217, 167, 255, 0.55);
   background: rgba(217, 167, 255, 0.1);
+}
+
+.dashboard-tabs-list {
+  margin-top: 18px;
+  display: grid;
+  gap: 10px;
+}
+
+.dashboard-tab-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  background: rgba(7, 19, 11, 0.55);
+  border: 1px solid rgba(108, 255, 141, 0.18);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-weight: 700;
+}
+
+.tab-active-label {
+  color: #6cff8d;
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
+.small-muted-text {
+  color: #9fb5a5;
+  font-size: 14px;
+}
+
+.dashboard-tab-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.delete-tab-btn {
+  background: rgba(255, 107, 107, 0.12);
+  color: #ff7b7b;
+  border: 1px solid rgba(255, 107, 107, 0.35);
+  border-radius: 8px;
+  padding: 7px 10px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.delete-tab-btn:hover {
+  background: #ff7b7b;
+  color: #07130b;
+}
+
+.popup-confirm-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.confirm-delete-btn,
+.cancel-delete-btn {
+  flex: 1;
+  padding: 10px;
+  border-radius: 10px;
+  font-weight: 800;
+}
+
+.confirm-delete-btn {
+  background: #ff7b7b;
+  color: #07130b;
+}
+
+.confirm-delete-btn:hover {
+  background: #ff9b9b;
+}
+
+.cancel-delete-btn {
+  background: transparent;
+  color: #f4fff6;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.cancel-delete-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
 }

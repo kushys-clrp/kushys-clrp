@@ -54,6 +54,13 @@ const existingTabMenu = document.getElementById("existingTabMenu");
 const membershipTrigger = document.getElementById("membershipTrigger");
 const membershipMenu = document.getElementById("membershipMenu");
 
+const membershipJointModal = document.getElementById("membershipJointModal");
+const membershipJointTrigger = document.getElementById("membershipJointTrigger");
+const membershipJointMenu = document.getElementById("membershipJointMenu");
+const membershipJointSelect = document.getElementById("membershipJointSelect");
+const confirmMembershipJointBtn = document.getElementById("confirmMembershipJointBtn");
+const cancelMembershipJointBtn = document.getElementById("cancelMembershipJointBtn");
+
 let currentOrder = [];
 let menuItems = [];
 let selectedCategory = "All";
@@ -113,10 +120,11 @@ onAuthStateChanged(auth, async (user) => {
     managementNavBtn.style.display = "inline-block";
   }
 
-  await loadEmployees();
-  await loadMenu();
-  await loadTabs();
-  await loadMemberships();
+await loadEmployees();
+await loadMenu();
+loadMembershipJointOptions();
+await loadTabs();
+await loadMemberships();
 });
 
 async function loadEmployees() {
@@ -307,6 +315,22 @@ function renderMenu() {
 menuSearch.addEventListener("input", renderMenu);
 
 function addToOrder(item, quantity = 1) {
+  const isJoint = item.category.toLowerCase().includes("joint");
+
+  if (isJoint) {
+    const currentJointQuantity = getJointQuantityFromOrder();
+    const newJointQuantity = currentJointQuantity + quantity;
+
+    if (newJointQuantity > 5) {
+      showPopup(
+        "Joint Limit Reached",
+        "Employees can only sell 5 joints per order.",
+        "error"
+      );
+      return;
+    }
+  }
+
   const existingItem = currentOrder.find(
     (orderItem) => orderItem.id === item.id
   );
@@ -330,6 +354,16 @@ function orderIncludesJoints() {
   return currentOrder.some((item) =>
     item.category.toLowerCase().includes("joint")
   );
+}
+
+function getJointQuantityFromOrder() {
+  return currentOrder.reduce((total, item) => {
+    if (item.category.toLowerCase().includes("joint")) {
+      return total + item.quantity;
+    }
+
+    return total;
+  }, 0);
 }
 
 function updateCitizenIdVisibility() {
@@ -401,10 +435,21 @@ function renderOrder() {
       </div>
     `;
 
-    itemRow.querySelector(".plus-btn").addEventListener("click", () => {
-      item.quantity += 1;
-      renderOrder();
-    });
+itemRow.querySelector(".plus-btn").addEventListener("click", () => {
+  const isJoint = item.category.toLowerCase().includes("joint");
+
+  if (isJoint && getJointQuantityFromOrder() + 1 > 5) {
+    showPopup(
+      "Joint Limit Reached",
+      "Employees can only sell 5 joints per order.",
+      "error"
+    );
+    return;
+  }
+
+  item.quantity += 1;
+  renderOrder();
+});
 
     itemRow.querySelector(".minus-btn").addEventListener("click", () => {
       item.quantity -= 1;
@@ -429,8 +474,34 @@ function renderOrder() {
     orderSummary.appendChild(itemRow);
   });
 
-  orderTotal.textContent = total.toLocaleString();
-  updateCitizenIdVisibility();
+let finalTotal = total;
+
+if (selectedMembership) {
+  const membershipDiscount = Math.round(total * 0.05);
+  finalTotal = Math.max(total - membershipDiscount, 0);
+
+  const discountRow = document.createElement("div");
+  discountRow.classList.add("order-summary-row");
+
+  discountRow.innerHTML = `
+    <div class="order-item-info">
+      <span class="order-item-name">VIP Discount</span>
+
+      <span class="order-item-price">
+        5% off paid items
+      </span>
+    </div>
+
+    <div class="order-actions">
+      <strong>-$${membershipDiscount.toLocaleString()}</strong>
+    </div>
+  `;
+
+  orderSummary.appendChild(discountRow);
+}
+
+orderTotal.textContent = finalTotal.toLocaleString();
+updateCitizenIdVisibility();
 }
 
 function setupCustomModalSelect(trigger, menu, hiddenInput, otherMenu) {
@@ -471,6 +542,13 @@ setupCustomModalSelect(
   existingTabMenu
 );
 
+setupCustomModalSelect(
+  membershipJointTrigger,
+  membershipJointMenu,
+  membershipJointSelect,
+  null
+);
+
 document.addEventListener("click", (event) => {
   if (
     existingTabMenu &&
@@ -487,6 +565,14 @@ document.addEventListener("click", (event) => {
   ) {
     membershipMenu.classList.remove("open");
   }
+
+  if (
+  membershipJointMenu &&
+  !event.target.closest("#membershipJointTrigger") &&
+  !event.target.closest("#membershipJointMenu")
+) {
+  membershipJointMenu.classList.remove("open");
+}
 });
 
 function openModal(modal) {
@@ -602,6 +688,24 @@ async function loadMemberships() {
   });
 }
 
+function loadMembershipJointOptions() {
+  if (!membershipJointMenu) return;
+
+  membershipJointMenu.innerHTML = "";
+
+  addModalSelectOption(membershipJointMenu, "", "Select joint");
+
+  const jointItems = menuItems.filter((item) =>
+    item.category.toLowerCase().includes("joint")
+  );
+
+  jointItems.sort((a, b) => a.name.localeCompare(b.name));
+
+  jointItems.forEach((joint) => {
+    addModalSelectOption(membershipJointMenu, joint.id, joint.name);
+  });
+}
+
 function orderIncludesMembershipPlan() {
   return currentOrder.some((item) =>
     item.name.toLowerCase().includes("royalty") ||
@@ -629,49 +733,23 @@ if (cancelTabBtn) {
 }
 
 if (setupTabBtn) {
-  setupTabBtn.addEventListener("click", async () => {
+  setupTabBtn.addEventListener("click", () => {
     const existingTabId = existingTabSelect.value;
     const existingTabName = existingTabTrigger.dataset.selectedName || "";
-    const createdTabName = newTabName.value.trim();
 
-    if (!existingTabId && !createdTabName) {
+    if (!existingTabId) {
       showPopup(
         "No Tab Selected",
-        "Please select an existing tab or enter a new tab name.",
+        "Please select an existing tab.",
         "error"
       );
       return;
     }
 
-    if (existingTabId && createdTabName) {
-      showPopup(
-        "Choose One Tab Option",
-        "Please either select an existing tab or create a new one, not both.",
-        "error"
-      );
-      return;
-    }
-
-    if (createdTabName) {
-      const newTabRef = await addDoc(collection(db, "tabs"), {
-        name: createdTabName,
-        active: true,
-        createdAt: serverTimestamp(),
-        createdBy: auth.currentUser?.uid || null
-      });
-
-      selectedTab = {
-        id: newTabRef.id,
-        name: createdTabName
-      };
-
-      await loadTabs();
-    } else {
-      selectedTab = {
-        id: existingTabId,
-        name: existingTabName
-      };
-    }
+    selectedTab = {
+      id: existingTabId,
+      name: existingTabName
+    };
 
     selectedMembership = null;
 
@@ -715,19 +793,91 @@ if (confirmMembershipBtn) {
 
     selectedMembership = {
       id: membershipId,
-      name: membershipName
+      name: membershipName,
+      customerName: membershipName.split(" - ")[0]
     };
 
     selectedTab = null;
 
-    redeemMembershipBtn.textContent = `VIP: ${selectedMembership.name}`;
+    redeemMembershipBtn.textContent = `VIP: ${selectedMembership.customerName}`;
     toggleTabBtn.textContent = "Toggle Tab";
 
     closeModal(membershipModal);
+    openModal(membershipJointModal);
+  });
+}
+
+if (cancelMembershipJointBtn) {
+  cancelMembershipJointBtn.addEventListener("click", () => {
+    selectedMembership = null;
+    redeemMembershipBtn.textContent = "Redeem Membership";
+    closeModal(membershipJointModal);
+  });
+}
+
+if (confirmMembershipJointBtn) {
+  confirmMembershipJointBtn.addEventListener("click", () => {
+    const jointId = membershipJointSelect.value;
+
+    if (!jointId) {
+      showPopup(
+        "No Joint Selected",
+        "Please select which joint the VIP customer wants.",
+        "error"
+      );
+      return;
+    }
+
+    const selectedJoint = menuItems.find((item) => item.id === jointId);
+
+    if (!selectedJoint) {
+      showPopup(
+        "Joint Not Found",
+        "Please refresh and try again.",
+        "error"
+      );
+      return;
+    }
+
+    const existingPaidJoints = currentOrder.filter((item) => {
+      return (
+        item.category.toLowerCase().includes("joint") &&
+        !item.membershipFreeJoint
+      );
+    });
+
+    if (existingPaidJoints.length > 0) {
+      showPopup(
+        "Remove Existing Joints",
+        "Please remove any joints already in the basket before redeeming VIP joints.",
+        "error",
+        5000
+      );
+      return;
+    }
+
+    currentOrder = currentOrder.filter(
+      (item) => !item.membershipFreeJoint
+    );
+
+    currentOrder.push({
+      id: `vip-free-${selectedJoint.id}`,
+      originalItemId: selectedJoint.id,
+      name: `VIP Free ${selectedJoint.name}`,
+      price: 0,
+      originalPrice: selectedJoint.price,
+      category: selectedJoint.category,
+      quantity: 5,
+      membershipFreeJoint: true
+    });
+
+    renderOrder();
+
+    closeModal(membershipJointModal);
 
     showPopup(
-      "Membership Selected",
-      `${selectedMembership.name} will be redeemed for this order.`
+      "VIP Joints Added",
+      `5 free ${selectedJoint.name} joints have been added to the basket.`
     );
   });
 }
@@ -748,9 +898,19 @@ if (membershipModal) {
   });
 }
 
+if (membershipJointModal) {
+  membershipJointModal.addEventListener("click", (event) => {
+    if (event.target === membershipJointModal) {
+      closeModal(membershipJointModal);
+    }
+  });
+}
+
 submitOrderBtn.addEventListener("click", async () => {
   const employeeName = employeeSelect.value;
-  const customerName = document.getElementById("customerName").value.trim();
+  const customerName = selectedMembership
+  ? selectedMembership.name.split(" - ")[0]
+  : document.getElementById("customerName").value.trim();
   const citizenId = citizenIdInput.value.trim();
 
   if (!employeeName) {
@@ -781,13 +941,22 @@ submitOrderBtn.addEventListener("click", async () => {
     return sum + item.price * item.quantity;
   }, 0);
 
+  const membershipDiscount = selectedMembership
+  ? Math.round(total * 0.05)
+  : 0;
+
+const finalTotal = Math.max(total - membershipDiscount, 0);
+
 const orderData = {
   employee: employeeName,
   customer: customerName,
   citizenId: citizenId || null,
   requiresCitizenId: orderIncludesJoints(),
   items: currentOrder,
-  total,
+  total: finalTotal,
+  originalTotal: total,
+  membershipDiscount,
+  finalTotal,
   timestamp: serverTimestamp(),
   done: false,
   deleted: false,
@@ -805,13 +974,15 @@ if (selectedMembership) {
   orderData.paymentType = "membership";
   orderData.membershipId = selectedMembership.id;
   orderData.membershipName = selectedMembership.name;
-  orderData.originalTotal = total;
-  orderData.finalTotal = 0;
+  orderData.customer = customerName;
+  orderData.membershipDiscountRate = 0.05;
+  orderData.membershipDiscount = membershipDiscount;
+  orderData.finalTotal = finalTotal;
 }
 
 await addDoc(collection(db, "orders"), orderData);
 
-if (orderIncludesMembershipPlan()) {
+if (orderIncludesMembershipPlan() && !selectedMembership) {
   await addDoc(collection(db, "memberships"), {
     name: customerName,
     plan: "Kushy's Royalty VIP Plan",

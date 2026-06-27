@@ -151,11 +151,8 @@
   <input type="hidden" id="existingTabSelect" />
 </div>
 
-    <label>Create New Tab</label>
-    <input type="text" id="newTabName" placeholder="Person or group name" />
-
     <div class="modal-actions">
-      <button id="setupTabBtn" type="button">Setup Tab</button>
+      <button id="setupTabBtn" type="button">Use Tab</button>
       <button id="cancelTabBtn" type="button" class="modal-cancel-btn">
         Cancel
       </button>
@@ -187,6 +184,70 @@
     <div class="modal-actions">
       <button id="confirmMembershipBtn" type="button">Redeem</button>
       <button id="cancelMembershipBtn" type="button" class="modal-cancel-btn">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+<div id="membershipJointModal" class="kushy-modal hidden-field">
+  <div class="kushy-modal-box">
+    <h2>Choose VIP Joints</h2>
+    <p>Select which joint the customer wants as their 5 free VIP joints.</p>
+
+    <label>Joint Type</label>
+
+    <div class="modal-custom-select">
+      <button type="button" class="modal-select-trigger" id="membershipJointTrigger">
+        Select joint
+      </button>
+
+      <div class="modal-select-menu" id="membershipJointMenu">
+        <button type="button" data-value="" data-name="">
+          Select joint
+        </button>
+      </div>
+
+      <input type="hidden" id="membershipJointSelect" />
+    </div>
+
+    <div class="modal-actions">
+      <button id="confirmMembershipJointBtn" type="button">
+        Add 5 Free Joints
+      </button>
+
+      <button id="cancelMembershipJointBtn" type="button" class="modal-cancel-btn">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+<div id="membershipJointModal" class="kushy-modal hidden-field">
+  <div class="kushy-modal-box">
+    <h2>Choose VIP Joints</h2>
+    <p>Select which joint the customer wants for their VIP plan.</p>
+
+    <label>Joint Type</label>
+
+    <div class="modal-custom-select">
+      <button type="button" class="modal-select-trigger" id="membershipJointTrigger">
+        Select joint
+      </button>
+
+      <div class="modal-select-menu" id="membershipJointMenu">
+        <button type="button" data-value="" data-name="">
+          Select joint
+        </button>
+      </div>
+
+      <input type="hidden" id="membershipJointSelect" />
+    </div>
+
+    <div class="modal-actions">
+      <button id="confirmMembershipJointBtn" type="button">
+        Add 5 Free Joints
+      </button>
+
+      <button id="cancelMembershipJointBtn" type="button" class="modal-cancel-btn">
         Cancel
       </button>
     </div>
