@@ -358,23 +358,8 @@ ${item.isCombo ? `
 menuSearch.addEventListener("input", renderMenu);
 
 function addToOrder(item, quantity = 1) {
-  const isJoint = item.category.toLowerCase().includes("joint");
-
-  if (isJoint) {
-    const currentJointQuantity = getJointQuantityFromOrder();
-const itemJointQuantity = getJointQuantityFromItem({
-  ...item,
-  quantity
-});
-
-if (itemJointQuantity > 0 && currentJointQuantity + itemJointQuantity > 5) {
-  showPopup(
-    "Joint Limit Reached",
-    "Employees can only sell 5 joints per order.",
-    "error"
-  );
-  return;
-}
+  if (!canAddRestrictedItem(item, quantity)) {
+    return;
   }
 
   const existingItem = currentOrder.find(
@@ -398,40 +383,102 @@ if (itemJointQuantity > 0 && currentJointQuantity + itemJointQuantity > 5) {
   renderOrder();
 }
 
-function getJointQuantityFromItem(item) {
-  if (item.category?.toLowerCase().includes("joint")) {
-    return item.quantity || 0;
+function getRestrictedQuantityFromItem(item, type) {
+  const itemQuantity = Number(item.quantity || 0);
+
+  const isCombo =
+    item.isCombo ||
+    (Array.isArray(item.comboItems) && item.comboItems.length > 0);
+
+  if (isCombo) {
+    const quantityPerCombo = (item.comboItems || []).reduce(
+      (total, comboItem) => {
+        const category = String(comboItem.category || "").toLowerCase();
+
+        if (category.includes(type)) {
+          return total + Number(comboItem.quantity || 0);
+        }
+
+        return total;
+      },
+      0
+    );
+
+    return quantityPerCombo * itemQuantity;
   }
 
-  if (item.isCombo) {
-    const comboJointQuantity = (item.comboItems || []).reduce((total, comboItem) => {
-      if (comboItem.category?.toLowerCase().includes("joint")) {
-        return total + Number(comboItem.quantity || 0);
-      }
+  const category = String(item.category || "").toLowerCase();
 
-      return total;
-    }, 0);
-
-    return comboJointQuantity * (item.quantity || 1);
-  }
-
-  return 0;
+  return category.includes(type) ? itemQuantity : 0;
 }
 
-function orderIncludesJoints() {
-  return currentOrder.some((item) => {
-    return getJointQuantityFromItem(item) > 0;
-  });
-}
-
-function getJointQuantityFromOrder() {
-  return currentOrder.reduce((total, item) => {
-    return total + getJointQuantityFromItem(item);
+function getRestrictedQuantityFromOrder(type, order = currentOrder) {
+  return order.reduce((total, item) => {
+    return total + getRestrictedQuantityFromItem(item, type);
   }, 0);
 }
 
+function getJointQuantityFromOrder(order = currentOrder) {
+  return getRestrictedQuantityFromOrder("joint", order);
+}
+
+function getEdibleQuantityFromOrder(order = currentOrder) {
+  return getRestrictedQuantityFromOrder("edible", order);
+}
+
+function orderIncludesJoints() {
+  return getJointQuantityFromOrder() > 0;
+}
+
+function orderIncludesEdibles() {
+  return getEdibleQuantityFromOrder() > 0;
+}
+
+function orderRequiresCitizenId() {
+  return orderIncludesJoints() || orderIncludesEdibles();
+}
+
+function canAddRestrictedItem(item, quantity = 1) {
+  const itemBeingAdded = {
+    ...item,
+    quantity
+  };
+
+  const addedJoints = getRestrictedQuantityFromItem(
+    itemBeingAdded,
+    "joint"
+  );
+
+  const addedEdibles = getRestrictedQuantityFromItem(
+    itemBeingAdded,
+    "edible"
+  );
+
+  if (getJointQuantityFromOrder() + addedJoints > 5) {
+    showPopup(
+      "Joint Limit Reached",
+      "Employees can only sell 5 joints per order.",
+      "error"
+    );
+
+    return false;
+  }
+
+  if (getEdibleQuantityFromOrder() + addedEdibles > 5) {
+    showPopup(
+      "Edible Limit Reached",
+      "Employees can only sell 5 edibles per order.",
+      "error"
+    );
+
+    return false;
+  }
+
+  return true;
+}
+
 function updateCitizenIdVisibility() {
-  if (orderIncludesJoints()) {
+  if (orderRequiresCitizenId()) {
     citizenIdWrapper.classList.remove("hidden-field");
   } else {
     citizenIdWrapper.classList.add("hidden-field");
@@ -500,14 +547,7 @@ function renderOrder() {
     `;
 
 itemRow.querySelector(".plus-btn").addEventListener("click", () => {
-  const isJoint = item.category.toLowerCase().includes("joint");
-
-  if (isJoint && getJointQuantityFromOrder() + 1 > 5) {
-    showPopup(
-      "Joint Limit Reached",
-      "Employees can only sell 5 joints per order.",
-      "error"
-    );
+  if (!canAddRestrictedItem(item, 1)) {
     return;
   }
 
@@ -912,14 +952,11 @@ if (confirmMembershipJointBtn) {
       return;
     }
 
-    const existingPaidJoints = currentOrder.filter((item) => {
-      return (
-        item.category.toLowerCase().includes("joint") &&
-        !item.membershipFreeJoint
-      );
-    });
+  const paidJointQuantity = getJointQuantityFromOrder(
+  currentOrder.filter((item) => !item.membershipFreeJoint)
+);
 
-    if (existingPaidJoints.length > 0) {
+if (paidJointQuantity > 0) {
       showPopup(
         "Remove Existing Joints",
         "Please remove any joints already in the basket before redeeming VIP joints.",
@@ -1001,14 +1038,15 @@ submitOrderBtn.addEventListener("click", async () => {
     return;
   }
 
-  if (orderIncludesJoints() && !citizenId) {
-    showPopup(
-      "Citizen ID Required",
-      "Citizen ID is required for joint purchases.",
-      "error"
-    );
-    return;
-  }
+if (orderRequiresCitizenId() && !citizenId) {
+  showPopup(
+    "Citizen ID Required",
+    "Citizen ID is required for joint and edible purchases.",
+    "error"
+  );
+
+  return;
+}
 
   const total = currentOrder.reduce((sum, item) => {
     return sum + item.price * item.quantity;
@@ -1024,7 +1062,7 @@ const orderData = {
   employee: employeeName,
   customer: customerName,
   citizenId: citizenId || null,
-  requiresCitizenId: orderIncludesJoints(),
+  requiresCitizenId: orderRequiresCitizenId(), 
   items: currentOrder,
   total: finalTotal,
   originalTotal: total,
