@@ -69,6 +69,7 @@ let selectedCategory = "All";
 let selectedSort = "default";
 let selectedTab = null;
 let selectedMembership = null;
+let activeMemberships = [];
 
 function showPopup(title, message, type = "success", duration = 3000) {
   const popupContainer = document.getElementById("popupContainer");
@@ -435,7 +436,11 @@ function orderIncludesEdibles() {
 }
 
 function orderRequiresCitizenId() {
-  return orderIncludesJoints() || orderIncludesEdibles();
+  return (
+    orderIncludesJoints() ||
+    orderIncludesEdibles() ||
+    orderIncludesMembershipPlan()
+  );
 }
 
 function canAddRestrictedItem(item, quantity = 1) {
@@ -772,7 +777,8 @@ async function loadMemberships() {
   );
 
   const snapshot = await getDocs(q);
-const memberships = [];
+activeMemberships = [];
+const memberships = activeMemberships;
 const now = new Date();
 
 snapshot.forEach((docSnap) => {
@@ -904,11 +910,20 @@ if (confirmMembershipBtn) {
       return;
     }
 
-    selectedMembership = {
-      id: membershipId,
-      name: membershipName,
-      customerName: membershipName.split(" - ")[0]
-    };
+    const membershipData = activeMemberships.find(
+  (membership) => membership.id === membershipId
+);
+
+selectedMembership = {
+  id: membershipId,
+  name: membershipName,
+  customerName: membershipName.split(" - ")[0],
+  citizenId: membershipData?.citizenId || ""
+};
+
+if (selectedMembership.citizenId) {
+  citizenIdInput.value = selectedMembership.citizenId;
+}
 
     selectedTab = null;
 
@@ -1041,7 +1056,7 @@ submitOrderBtn.addEventListener("click", async () => {
 if (orderRequiresCitizenId() && !citizenId) {
   showPopup(
     "Citizen ID Required",
-    "Citizen ID is required for joint and edible purchases.",
+    "Citizen ID is required for joint, edible and VIP plan purchases.",
     "error"
   );
 
@@ -1097,14 +1112,15 @@ if (orderIncludesMembershipPlan() && !selectedMembership) {
   const expiresAtDate = new Date();
   expiresAtDate.setMonth(expiresAtDate.getMonth() + 1);
 
-  await addDoc(collection(db, "memberships"), {
-    name: customerName,
-    plan: "Kushy's Royalty VIP Plan",
-    active: true,
-    createdAt: serverTimestamp(),
-    expiresAt: Timestamp.fromDate(expiresAtDate),
-    createdBy: auth.currentUser?.uid || null
-  });
+await addDoc(collection(db, "memberships"), {
+  name: customerName,
+  citizenId,
+  plan: "Kushy's Royalty VIP Plan",
+  active: true,
+  createdAt: serverTimestamp(),
+  expiresAt: Timestamp.fromDate(expiresAtDate),
+  createdBy: auth.currentUser?.uid || null
+});
 
   await loadMemberships();
 }
