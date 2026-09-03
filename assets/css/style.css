@@ -1739,3 +1739,14 @@ select:focus,
   position: relative;
   z-index: 4;
 }
+
+.site-credit {
+  width: 100%;
+  padding: 8px 0 12px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.4px;
+  color: rgba(244, 255, 246, 0.25);
+  user-select: none;
+}
