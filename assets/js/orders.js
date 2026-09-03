@@ -9,14 +9,15 @@ import {
   collection,
   query,
   where,
-  onSnapshot,
+  updateDoc,
   doc,
-  updateDoc
+  getDoc,
+  onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
 const ordersContainer = document.getElementById("ordersContainer");
-const clearCompletedBtn = document.getElementById("clearCompletedBtn");
 const logoutBtn = document.getElementById("logoutBtn");
+const managementNavBtn = document.getElementById("managementNavBtn");
 const orderSearch = document.getElementById("orderSearch");
 
 const totalOrdersStat = document.getElementById("totalOrdersStat");
@@ -55,10 +56,36 @@ function showPopup(title, message, type = "success", duration = 3000) {
   }, duration);
 }
 
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
   if (!user) {
     window.location.href = "index.html";
     return;
+  }
+
+  const employeeRef = doc(db, "employees", user.uid);
+  const employeeSnap = await getDoc(employeeRef);
+
+  if (!employeeSnap.exists()) {
+    await signOut(auth);
+    window.location.href = "index.html";
+    return;
+  }
+
+  const employeeData = employeeSnap.data();
+
+  if (!employeeData.active) {
+    await signOut(auth);
+    window.location.href = "index.html";
+    return;
+  }
+
+  document.body.classList.add("auth-ready");
+
+  if (
+    managementNavBtn &&
+    (employeeData.role === "owner" || employeeData.role === "manager")
+  ) {
+    managementNavBtn.style.display = "inline-block";
   }
 
   loadOrders();
@@ -166,6 +193,24 @@ function renderOrders() {
     const statusText = order.done ? "Completed" : "Pending";
     const statusIcon = order.done ? "check" : "clock-3";
 
+    let paymentBadge = "";
+
+if (order.paymentType === "tab") {
+  paymentBadge = `
+    <span class="payment-badge tab-payment-badge">
+      TAB: ${order.tabName || "Unnamed Tab"}
+    </span>
+  `;
+}
+
+if (order.paymentType === "membership") {
+  paymentBadge = `
+    <span class="payment-badge membership-payment-badge">
+      VIP REDEEMED
+    </span>
+  `;
+}
+
     orderRow.innerHTML = `
       <div class="table-user">
         <i data-lucide="user"></i>
@@ -194,10 +239,14 @@ function renderOrders() {
         ${order.citizenId ? `ID: ${order.citizenId}` : "—"}
       </div>
 
-      <div class="order-status ${statusClass}">
-        <i data-lucide="${statusIcon}"></i>
-        <span>${statusText}</span>
-      </div>
+        <div class="status-stack">
+  <div class="order-status ${statusClass}">
+    <i data-lucide="${statusIcon}"></i>
+    <span>${statusText}</span>
+  </div>
+
+  ${paymentBadge}
+</div>
 
       <div>
         ${dateText}<br>
@@ -286,34 +335,6 @@ prevPageBtn.addEventListener("click", () => {
     currentPage = 1;
     renderOrders();
   });
-
-clearCompletedBtn.addEventListener("click", async () => {
-  const completedOrders = currentOrders.filter((order) => order.done);
-
-  if (completedOrders.length === 0) {
-    showPopup(
-      "Nothing To Clear",
-      "There are no completed orders to clear.",
-      "error"
-    );
-    return;
-  }
-
-  const confirmed = confirm("Clear all completed orders?");
-
-  if (!confirmed) return;
-
-  for (const order of completedOrders) {
-    await updateDoc(doc(db, "orders", order.id), {
-      deleted: true
-    });
-  }
-
-  showPopup(
-    "Orders Cleared",
-    "Completed orders have been hidden."
-  );
-});
 
 logoutBtn.addEventListener("click", async () => {
   await signOut(auth);
