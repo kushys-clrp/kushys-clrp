@@ -2283,3 +2283,60 @@ select:focus,
   color: rgba(244, 255, 246, 0.25);
   user-select: none;
 }
+
+/* =========================
+   SITE WATERMARK
+========================= */
+
+.site-watermark {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 50;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+
+  padding: 10px 12px;
+
+  border: 1px solid rgba(108, 255, 141, 0.25);
+  border-radius: 12px;
+
+  background: rgba(7, 19, 11, 0.88);
+  backdrop-filter: blur(10px);
+
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+
+  pointer-events: none;
+}
+
+.site-watermark span {
+  color: #6cff8d;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.site-watermark small {
+  color: #b8c7bc;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+@media (max-width: 620px) {
+  .site-watermark {
+    right: 12px;
+    bottom: 12px;
+    padding: 8px 10px;
+  }
+
+  .site-watermark span {
+    font-size: 11px;
+  }
+
+  .site-watermark small {
+    font-size: 9px;
+  }
+}
