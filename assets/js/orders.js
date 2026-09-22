@@ -62,28 +62,28 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
-  const employeeRef = doc(db, "employees", user.uid);
-  const employeeSnap = await getDoc(employeeRef);
-
-  if (!employeeSnap.exists()) {
+  const userRef = doc(db, "users", user.uid);
+  const userSnap = await getDoc(userRef);
+  
+  if (!userSnap.exists()) {
     await signOut(auth);
     window.location.href = "index.html";
     return;
   }
-
-  const employeeData = employeeSnap.data();
-
-  if (!employeeData.active) {
+  
+  const userData = userSnap.data();
+  
+  if (!userData.active) {
     await signOut(auth);
     window.location.href = "index.html";
     return;
   }
-
+  
   document.body.classList.add("auth-ready");
-
+  
   if (
     managementNavBtn &&
-    (employeeData.role === "owner" || employeeData.role === "manager")
+    (userData.role === "owner" || userData.role === "manager")
   ) {
     managementNavBtn.style.display = "inline-block";
   }

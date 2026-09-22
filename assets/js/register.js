@@ -97,18 +97,18 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
-  const employeeRef = doc(db, "employees", user.uid);
-  const employeeSnap = await getDoc(employeeRef);
+  const userRef = doc(db, "users", user.uid);
+  const userSnap = await getDoc(userRef);
 
-  if (!employeeSnap.exists()) {
+  if (!userSnap.exists()) {
     await signOut(auth);
     window.location.href = "index.html";
     return;
   }
 
-  const employeeData = employeeSnap.data();
+  const userData = userSnap.data();
 
-  if (!employeeData.active) {
+  if (!userData.active) {
     await signOut(auth);
     window.location.href = "index.html";
     return;
@@ -118,16 +118,16 @@ onAuthStateChanged(auth, async (user) => {
 
   if (
     managementNavBtn &&
-    (employeeData.role === "owner" || employeeData.role === "manager")
+    (userData.role === "owner" || userData.role === "manager")
   ) {
     managementNavBtn.style.display = "inline-block";
   }
 
-await loadEmployees();
-await loadMenu();
-loadMembershipJointOptions();
-await loadTabs();
-await loadMemberships();
+  await loadEmployees();
+  await loadMenu();
+  loadMembershipJointOptions();
+  await loadTabs();
+  await loadMemberships();
 });
 
 async function loadEmployees() {

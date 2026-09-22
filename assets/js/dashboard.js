@@ -117,26 +117,29 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
-  const employeeSnap = await getDoc(doc(db, "employees", user.uid));
+  const userSnap = await getDoc(doc(db, "users", user.uid));
 
-  if (!employeeSnap.exists()) {
+  if (!userSnap.exists()) {
     window.location.href = "index.html";
     return;
   }
-
-  const employee = employeeSnap.data();
-
-  if (!employee.active || (employee.role !== "owner" && employee.role !== "manager")) {
+  
+  const userData = userSnap.data();
+  
+  if (
+    !userData.active ||
+    (userData.role !== "owner" && userData.role !== "manager")
+  ) {
     showPopup(
       "Access Denied",
       "You do not have permission to access management.",
       "error"
     );
-
+  
     setTimeout(() => {
       window.location.href = "register.html";
     }, 1200);
-
+  
     return;
   }
 
@@ -322,7 +325,9 @@ async function loadEmployeeDropdown() {
       id: docSnap.id,
       ...docSnap.data()
     };
-
+  
+    if (employee.active === false) return;
+  
     employees.push(employee);
   });
 
@@ -438,7 +443,11 @@ deleteEmployeeBtn.addEventListener("click", async () => {
 
   if (!confirmed) return;
 
-  await deleteDoc(doc(db, "employees", selectedId));
+  await updateDoc(doc(db, "employees", selectedId), {
+    active: false,
+    deactivatedAt: serverTimestamp(),
+    deactivatedBy: auth.currentUser?.uid || null
+  });
 
   showPopup(
     "Employee Removed",

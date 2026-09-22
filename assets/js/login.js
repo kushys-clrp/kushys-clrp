@@ -27,26 +27,26 @@ loginBtn.addEventListener("click", async () => {
 
     const user = userCredential.user;
 
-    const employeeRef = doc(db, "employees", user.uid);
-    const employeeSnap = await getDoc(employeeRef);
-
-    if (!employeeSnap.exists()) {
+    const userRef = doc(db, "users", user.uid);
+    const userSnap = await getDoc(userRef);
+    
+    if (!userSnap.exists()) {
       errorMessage.textContent =
-        "Wrong information received. Please try again.";
+        "This account does not have access to Kushy's.";
       return;
     }
-
-    const employeeData = employeeSnap.data();
-
-    if (!employeeData.active) {
+    
+    const userData = userSnap.data();
+    
+    if (!userData.active) {
       errorMessage.textContent =
         "This account is not active. Please contact management.";
       return;
     }
-
+    
     if (
-      employeeData.role === "owner" ||
-      employeeData.role === "manager"
+      userData.role === "owner" ||
+      userData.role === "manager"
     ) {
       window.location.href = "dashboard.html";
     } else {
@@ -54,7 +54,11 @@ loginBtn.addEventListener("click", async () => {
     }
 
   } catch (error) {
+    console.error("LOGIN ERROR:", error);
+    console.error("ERROR CODE:", error.code);
+    console.error("ERROR MESSAGE:", error.message);
+  
     errorMessage.textContent =
-      "Wrong information received. Please try again.";
+      `${error.code || "Unknown error"}: ${error.message || "Login failed"}`;
   }
 });
