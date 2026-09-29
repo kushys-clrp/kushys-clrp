@@ -141,6 +141,43 @@
         <div id="dashboardMembershipsList" class="dashboard-tabs-list"></div>
       </section>
 
+      <section class="card full-width market-run-card">
+        <h2>Market Run Calculator</h2>
+        <p>
+          Enter the current price and quantity for each item to calculate total
+          spent and total carry weight.
+        </p>
+
+        <div class="market-calculator-table">
+          <div class="market-calculator-header">
+            <span>Item</span>
+            <span>Current Price</span>
+            <span>Quantity</span>
+            <span>Total</span>
+          </div>
+
+          <div id="marketCalculatorItems"></div>
+        </div>
+
+        <div class="market-calculator-footer">
+          <button id="copyMarketSummaryBtn" class="market-copy-btn">
+            Copy Discord Summary
+          </button>
+
+          <div class="market-totals">
+            <div class="market-total-box">
+              <span>Total Spent</span>
+              <strong id="marketTotalSpent">$0</strong>
+            </div>
+
+            <div class="market-total-box">
+              <span>Total Weight</span>
+              <strong id="marketTotalWeight">0</strong>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section class="card full-width">
         <h2>Combo Builder</h2>
         <p>

@@ -1371,3 +1371,170 @@ logoutBtn.addEventListener("click", async () => {
   await signOut(auth);
   window.location.href = "index.html";
 });
+// =====================================================
+// MARKET RUN CALCULATOR
+// =====================================================
+
+const marketItems = [
+  "Boxed Food Coloring",
+  "Flour Sack",
+  "Sugar Sack",
+  "Cocoa Beans",
+  "Vanilla Bean Bundle",
+  "Packed Corn Nuts",
+];
+
+const MARKET_ITEM_WEIGHT = 5;
+
+const marketCalculatorItems = document.getElementById(
+  "marketCalculatorItems"
+);
+
+const marketTotalSpent = document.getElementById("marketTotalSpent");
+const marketTotalWeight = document.getElementById("marketTotalWeight");
+
+const copyMarketSummaryBtn = document.getElementById(
+  "copyMarketSummaryBtn"
+);
+
+function renderMarketCalculator() {
+  if (!marketCalculatorItems) return;
+
+  marketCalculatorItems.innerHTML = "";
+
+  marketItems.forEach((item, index) => {
+    const row = document.createElement("div");
+
+    row.className = "market-calculator-row";
+
+    row.innerHTML = `
+    <span class="market-item-name">${item}</span>
+  
+    <input
+      type="number"
+      class="market-price"
+      data-index="${index}"
+      min="0"
+      placeholder="Price"
+    />
+  
+    <input
+      type="number"
+      class="market-quantity"
+      data-index="${index}"
+      min="0"
+      value="0"
+    />
+  
+    <strong class="market-row-total">$0</strong>
+  `;
+
+    marketCalculatorItems.appendChild(row);
+  });
+
+  document
+    .querySelectorAll(".market-price, .market-quantity")
+    .forEach((input) => {
+      input.addEventListener("input", calculateMarketRun);
+    });
+}
+
+function calculateMarketRun() {
+  let totalSpent = 0;
+  let totalWeight = 0;
+
+  marketItems.forEach((item, index) => {
+    const priceInput = document.querySelector(
+      `.market-price[data-index="${index}"]`
+    );
+
+    const quantityInput = document.querySelector(
+      `.market-quantity[data-index="${index}"]`
+    );
+
+    const price = Math.max(
+      0,
+      Number(priceInput?.value) || 0
+    );
+
+    const quantity = Math.max(
+      0,
+      Number(quantityInput?.value) || 0
+    );
+
+    const itemTotal = price * quantity;
+    const itemWeight = MARKET_ITEM_WEIGHT * quantity;
+
+    totalSpent += itemTotal;
+    totalWeight += itemWeight;
+
+    const row = quantityInput.closest(
+      ".market-calculator-row"
+    );
+
+    const rowTotal = row.querySelector(
+      ".market-row-total"
+    );
+
+    rowTotal.textContent =
+      `$${itemTotal.toLocaleString()}`;
+  });
+
+  marketTotalSpent.textContent =
+    `$${totalSpent.toLocaleString()}`;
+
+  marketTotalWeight.textContent =
+    `${totalWeight.toLocaleString()} lbs`;
+}
+
+copyMarketSummaryBtn?.addEventListener(
+  "click",
+  async () => {
+    let totalSpent = 0;
+
+    marketItems.forEach((item, index) => {
+      const priceInput = document.querySelector(
+        `.market-price[data-index="${index}"]`
+      );
+
+      const quantityInput = document.querySelector(
+        `.market-quantity[data-index="${index}"]`
+      );
+
+      const price = Math.max(
+        0,
+        Number(priceInput?.value) || 0
+      );
+
+      const quantity = Math.max(
+        0,
+        Number(quantityInput?.value) || 0
+      );
+
+      totalSpent += price * quantity;
+    });
+
+    const summary =
+`\`\`\`Name:
+Date:
+Total Spent: $${totalSpent.toLocaleString()}\`\`\``;
+
+    try {
+      await navigator.clipboard.writeText(summary);
+
+      copyMarketSummaryBtn.textContent = "Copied!";
+
+      setTimeout(() => {
+        copyMarketSummaryBtn.textContent =
+          "Copy Discord Summary";
+      }, 2000);
+    } catch (error) {
+      console.error(
+        "Could not copy market summary:",
+        error
+      );
+    }
+  }
+);
+
+renderMarketCalculator();
